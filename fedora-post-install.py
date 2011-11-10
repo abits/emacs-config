@@ -1,3 +1,4 @@
+
 #!/bin/python
 import subprocess
 import logging
@@ -5,9 +6,12 @@ import shutil
 import os
 import urllib
 
+is64BitInstall = False
+pattern32bit = re.compile('i.86')
+pattern64bit = re.compile('_64')
 
-packagesSystem = ['gpointing-device-settings', 'dconf-editor', 'nautilus-image-converter',
-                  'system-config-services', 'alacarte', 'yum-plugin-fastestmirror', 'htop']
+packagesSystem = ['gpointing-device-settings', 'dconf-editor', 'nautilus-image-converter', 'nfs-utils',
+                  'system-config-services', 'alacarte', 'yum-plugin-fastestmirror', 'htop', 'trash-cli']
 
 packagesTools = ['ncftp', 'lynx', 'elinks', 'rtorrent', 'irssi', 'tor', 'privoxy',
                  'mutt', 'slrn', 'screen', 'nano', 'vim', 'parcellite', 'conky',
@@ -24,7 +28,9 @@ packagesDesign = ['ImageMagick', 'feh', 'xsane', 'gimp', 'gimp-help', 'gimp-data
                   'inkscape', 'dia', 'scribus', 'gtk-recordmydesktop']
 
 packagesDevGeneric = ['mercurial', 'bzr', 'rcs', 'gcc', 'git', 'cvs', 'subversion', 'rpmdevtools',
-                      'glade3', 'dwdiff', 'doxygen', 'diffutils', 'meld']
+                      'glade3', 'dwdiff', 'doxygen', 'diffutils', 'meld', 'redet', 'autoconf', 'automake']
+
+packagesDevNetbeans = ['http://bits.netbeans.org/7.0.1/community/latest/bundles/netbeans-7.0.1-ml-linux.sh']
 
 packagesDevPython = ['xmlto', 'epydoc', 'perl-XML-Twig', 'python-docs' 'python-docutils', 'ipython']
 
@@ -36,6 +42,17 @@ packagesMedia = ['gstreamer-plugins-ugly', 'gstreamer-plugins-bad', 'gstreamer-f
                  'gpodder', 'abcde', 'mpg321', 'id3v2', 'mp3gain', 'picard', 'gnome-subtitles', 'soundconverter',
                  'streamripper', 'mkvtoolnix-gui', 'mkvtoolnix', 'ogmrip', 'vlc', 'sox', 'faac', 'x264', 'vobcopy', 'flash-plugin']
 
+packagesDevJava = ['java-1.6.0-openjdk-devel', 'java-1.6.0-openjdk-javadoc', 'icedtea-web']
+
+packagesDevWeb = ['httpd', 'php', 'php-devel', 'php-gd', 'php-imap', 'php-ldap', 'php-mysql', 'php-odbc', 'php-pear',
+                'php-xml', 'php-xmlrpc', 'php-eaccelerator', 'php-magickwand', 'php-magpierss', 'php-mapserver',
+                'php-mbstring', 'php-mcrypt', 'php-mhash', 'php-mssql', 'php-shout', 'php-snmp', 'php-soap', 'php-tidy',
+                'curl', 'curl-devel', 'perl-libwww-perl', 'libxml2', 'libxml2-devel', 'mysql', 'mysql-devel', 'mysql-server'
+                'httpd-devel', 'mod_python', 'mod_perl', 'perl-HTML-Parser', 'perl-DBI', 'perl-Net-DNS', 'perl-Digest-SHA1',
+                'perl-ExtUtils-AutoInstall', 'perl-NetAddr-IP', 'perl-Archive-Tar', 'phpMyAdmin', 'mysql-workbench',
+                'php-pecl-xdebug', 'php-pear-PhpDocumentor', 'php-phpunit-PHPUnit', 'php-pear-PHP-CodeSniffer' ]
+
+packagesCompat = ['wine', 'samba-client']
 
 packagesFonts = ['google-droid-sans-fonts', 'google-droid-sans-mono-fonts', 'google-droid-serif-fonts', 
                  'bitstream-vera-sans-fonts', 'bitstream-vera-sans-mono-fonts', 'bitstream-vera-serif-fonts']
@@ -47,17 +64,46 @@ packagesMath = ['qtoctave', 'octave', 'octave-doc', 'gnuplot', 'gnuplot-doc', 'g
 
 packagesEyecandy = ['faenza-icon-theme']
 
+packagesVirtualBox = ['http://download.virtualbox.org/virtualbox/4.1.6/VirtualBox-4.1-4.1.6_74713_fedora16-1.x86_64.rpm',
+                      'http://download.virtualbox.org/virtualbox/4.1.6/VirtualBox-4.1-4.1.6_74713_fedora16-1.i686.rpm']
+
+configShell = ['.zsh_history', '.zshrc', '.mutt', '.muttrc', '.mailcap', '.netrc', '.hgrc', '.taskrc', '.vimrc', '.slrnrc', '.irssi', '.abcde.conf']
+
 configEmacs = ['.emacs.d', '.emacs', '.emacs-w3m', '.emacs-places', '.emacs-custom.el']
 
+configMozilla = ['.mozilla']
 
+configFonts = ['.fonts']
 
 
 def taskAddRepos():
+    logging.info('  taskAddRepos: Adding some repos.')
     #subprocess.check_call('rpm -Uvh "http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm" "http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm"', shell=True)
     subprocess.check_call('rpm -ivh http://rpm.livna.org/livna-release.rpm', shell=True) 
-    subprocess.check_call('rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-i386-1.0-1.noarch.rpm', shell=True)
+    
+    if is64BitInstall:
+        subprocess.check_call('rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-x86_64-1.0-1.noarch.rpm', shell=True)
+    else:
+        subprocess.check_call('rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-i386-1.0-1.noarch.rpm', shell=True)
     subprocess.check_call('rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux', shell=True)
     subprocess.check_call('yum update -y')
+
+def taskInstallExternalPackages(mode, urlBundle):
+    logging.info('  taskInstallExternalPackages: Fetching files.')
+    if mode == 'rpm':
+        for url in urlBundle:
+            if (is64BitInstall && pattern64bit.search(url)):
+                installCommand = 'rpm -ivh ' + url
+                subprocess.check_call(installCommand, shell=True)
+            else (!is64bitInstall && pattern32bit.search(url)):
+                installCommand = 'rpm -ivh ' + url
+                subprocess.check_call(installCommand, shell=True)
+    if mode == 'sh':
+        for url in urlBundle:
+            f, header = urllib.urlretrieve(url)
+            installCommand = ' ' 
+            subprocess.check_call(installCommand, shell=True)
+
 
 def taskUpdateCodecs():
     logging.info('  taskUpdateCodecs: Downloading codecs.')
@@ -69,6 +115,7 @@ def taskUpdateCodecs():
     subprocess.check_call(installCommand, shell=True)
     
 def taskInstallPackages(packageBundle):
+    logging.info('  taskInstallPackages: Installing packages.')
     packageList = ' '.join(packageBundle)
     installCommand = 'yum install ' + packageList + ' -y'
     subprocess.check_call(installCommand, shell=True)
@@ -83,7 +130,7 @@ def taskRestoreConfig(configBundle):
 	shutil.move(src, dest)
 
 def taskRestoreEyecandy():
-    subprocess.check_call('su chm -c "gsettings set org.gnome.desktop.interface icon-theme Faenza"')
+    #subprocess.check_call('su chm -c "gsettings set org.gnome.desktop.interface icon-theme Faenza"')
 
 def taskTrackpointSpeed():
     logging.info('  taskTrackpointSpeed: Speeding up trackpoint.')
@@ -101,6 +148,8 @@ def main():
     #taskInstallPackages(packagesDesign)
     #taskInstallPackages(packagesDevGeneric)
     #taskInstallPackages(packagesDevPython)
+    #taskInstallPackages(packagesDevJava)
+    #taskInstallPackages(packagesCompat)
     #taskInstallPackages(packagesEmacs)
     #taskRestoreConfig(configEmacs)
     #taskUpdateCodecs()
@@ -112,6 +161,7 @@ def main():
     taskInstallPackages(packagesFonts)
     taskInstallPackages(packagesEyecandy)
     taskRestoreEyecandy()
+    taskInstallExternalPackages('rpm', packagesVirtualBox):
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
