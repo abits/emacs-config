@@ -5,13 +5,19 @@ import logging
 import shutil
 import os
 import urllib
+import re
+import stat
 
-is64BitInstall = False
-pattern32bit = re.compile('i.86')
-pattern64bit = re.compile('_64')
 
-packagesSystem = ['gpointing-device-settings', 'dconf-editor', 'nautilus-image-converter', 'nfs-utils',
-                  'system-config-services', 'alacarte', 'yum-plugin-fastestmirror', 'htop', 'trash-cli']
+class globals:
+    is64BitInstall = False
+    pattern32bit = re.compile('i.86')
+    pattern64bit = re.compile('_64')
+
+packagesSystem = ['gpointing-device-settings', 'dconf-editor', 'numlockx',
+                  'nautilus-image-converter', 'nfs-utils',
+                  'system-config-services', 'alacarte', 'yum-plugin-fastestmirror',
+                  'htop', 'trash-cli', 'dkms', 'gksudo']
 
 packagesTools = ['ncftp', 'lynx', 'elinks', 'rtorrent', 'irssi', 'tor', 'privoxy',
                  'mutt', 'slrn', 'screen', 'nano', 'vim', 'parcellite', 'conky',
@@ -21,33 +27,36 @@ packagesTools = ['ncftp', 'lynx', 'elinks', 'rtorrent', 'irssi', 'tor', 'privoxy
 
 packagesOffice = ['libreoffice-impress', 'libreoffice-writer', 'libreoffice-calc',
                   'libreoffice-langpack-de', 'aspell-de', 'aspell-en', 'planner',
-                  'antiword', 'docbook2X', 'calibre', 'pdftk', 'diffpdf', 'psutils', 'pdfjam',
-                  'pdf2djvu', 'evince-djvu', 'ImageMagick-djvu', 'djview4', 'AdobeReader_deu']
+                  'antiword', 'docbook2X', 'calibre', 'pdftk', 'diffpdf', 'psutils',
+                  'pdfjam', 'pdf2djvu', 'evince-djvu', 'ImageMagick-djvu', 'djview4',
+                  'AdobeReader_deu']
 
 packagesDesign = ['ImageMagick', 'feh', 'xsane', 'gimp', 'gimp-help', 'gimp-data-extras',
                   'inkscape', 'dia', 'scribus', 'gtk-recordmydesktop']
 
-packagesDevGeneric = ['mercurial', 'bzr', 'rcs', 'gcc', 'git', 'cvs', 'subversion', 'rpmdevtools',
-                      'glade3', 'dwdiff', 'doxygen', 'diffutils', 'meld', 'redet', 'autoconf', 'automake']
+packagesDevGeneric = ['mercurial', 'bzr', 'rcs', 'gcc', 'git', 'cvs', 'subversion',
+                      'rpmdevtools', 'glade3', 'dwdiff', 'doxygen', 'diffutils', 'meld',
+                      'redet', 'autoconf', 'automake']
 
 packagesDevNetbeans = ['http://bits.netbeans.org/7.0.1/community/latest/bundles/netbeans-7.0.1-ml-linux.sh']
 
-packagesDevPython = ['xmlto', 'epydoc', 'perl-XML-Twig', 'python-docs' 'python-docutils', 'ipython']
+packagesDevPython = ['xmlto', 'epydoc', 'perl-XML-Twig', 'python-docs' 'python-docutils',
+                     'ipython']
 
 packagesEmacs = ['emacs', 'emacs-bbdb', 'ctags', 'ctags-etags', 'psgml', 'w3m-el', 'emacs-a2ps',
                  'emacs-magit', 'emacs-mercurial', 'emacs-goodies', 'emacs-color-theme']
 
 packagesMedia = ['gstreamer-plugins-ugly', 'gstreamer-plugins-bad', 'gstreamer-ffmpeg', 'lame', 'ffmpeg', 'python-eyed3',
-                 'mplayer', 'mencoder', 'dvdrip', 'libdvdcss', 'audacity', 'avidemux', 'gtkpod', 
+                 'mplayer', 'mencoder', 'dvdrip', 'libdvdcss', 'audacity', 'avidemux', 'gtkpod', 'mpd', 'ncmpcpp',
                  'gpodder', 'abcde', 'mpg321', 'id3v2', 'mp3gain', 'picard', 'gnome-subtitles', 'soundconverter',
                  'streamripper', 'mkvtoolnix-gui', 'mkvtoolnix', 'ogmrip', 'vlc', 'sox', 'faac', 'x264', 'vobcopy', 'flash-plugin']
 
-packagesDevJava = ['java-1.6.0-openjdk-devel', 'java-1.6.0-openjdk-javadoc', 'icedtea-web']
+packagesDevJava = ['java-1.6.0-openjdk-devel', 'java-1.6.0-openjdk-javadoc', 'icedtea-web', 'ant', 'junit']
 
 packagesDevWeb = ['httpd', 'php', 'php-devel', 'php-gd', 'php-imap', 'php-ldap', 'php-mysql', 'php-odbc', 'php-pear',
-                'php-xml', 'php-xmlrpc', 'php-eaccelerator', 'php-magickwand', 'php-magpierss', 'php-mapserver',
+                'php-xml', 'php-xmlrpc', 'php-eaccelerator', 'php-magickwand', 'php-mapserver',
                 'php-mbstring', 'php-mcrypt', 'php-mhash', 'php-mssql', 'php-shout', 'php-snmp', 'php-soap', 'php-tidy',
-                'curl', 'curl-devel', 'perl-libwww-perl', 'libxml2', 'libxml2-devel', 'mysql', 'mysql-devel', 'mysql-server'
+                'curl', 'curl-devel', 'perl-libwww-perl', 'libxml2', 'libxml2-devel', 'mysql', 'mysql-devel', 'mysql-server',
                 'httpd-devel', 'mod_python', 'mod_perl', 'perl-HTML-Parser', 'perl-DBI', 'perl-Net-DNS', 'perl-Digest-SHA1',
                 'perl-ExtUtils-AutoInstall', 'perl-NetAddr-IP', 'perl-Archive-Tar', 'phpMyAdmin', 'mysql-workbench',
                 'php-pecl-xdebug', 'php-pear-PhpDocumentor', 'php-phpunit-PHPUnit', 'php-pear-PHP-CodeSniffer' ]
@@ -60,7 +69,8 @@ packagesFonts = ['google-droid-sans-fonts', 'google-droid-sans-mono-fonts', 'goo
 packagesTex = ['texlive', 'texlive-latex', 'texlive-xetex', 'texlive-utils', 'texlive-doc', 'texlive-dvips',
                 'texlive-dviutils', 'latexmk', 'chktex', 'latexdiff']
 
-packagesMath = ['qtoctave', 'octave', 'octave-doc', 'gnuplot', 'gnuplot-doc', 'gnuplot-latex', 'emacs-gnuplot', 'maxima', 'maxima-gui', 'asymptote']
+packagesMath = ['qtoctave', 'octave', 'octave-doc', 'gnuplot', 'gnuplot-doc', 'gnuplot-latex',
+                'emacs-gnuplot', 'maxima', 'maxima-gui', 'asymptote']
 
 packagesEyecandy = ['faenza-icon-theme']
 
@@ -81,7 +91,7 @@ def taskAddRepos():
     #subprocess.check_call('rpm -Uvh "http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm" "http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm"', shell=True)
     subprocess.check_call('rpm -ivh http://rpm.livna.org/livna-release.rpm', shell=True) 
     
-    if is64BitInstall:
+    if self.is64BitInstall:
         subprocess.check_call('rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-x86_64-1.0-1.noarch.rpm', shell=True)
     else:
         subprocess.check_call('rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-i386-1.0-1.noarch.rpm', shell=True)
@@ -92,18 +102,17 @@ def taskInstallExternalPackages(mode, urlBundle):
     logging.info('  taskInstallExternalPackages: Fetching files.')
     if mode == 'rpm':
         for url in urlBundle:
-            if (is64BitInstall && pattern64bit.search(url)):
+            if globals.is64BitInstall == True and globals.pattern64bit.search(url):
                 installCommand = 'rpm -ivh ' + url
                 subprocess.check_call(installCommand, shell=True)
-            else (!is64bitInstall && pattern32bit.search(url)):
+            elif globals.is64BitInstall == False and globals.pattern32bit.search(url):
                 installCommand = 'rpm -ivh ' + url
                 subprocess.check_call(installCommand, shell=True)
     if mode == 'sh':
         for url in urlBundle:
             f, header = urllib.urlretrieve(url)
-            installCommand = ' ' 
+            installCommand = 'sh < ' + f 
             subprocess.check_call(installCommand, shell=True)
-
 
 def taskUpdateCodecs():
     logging.info('  taskUpdateCodecs: Downloading codecs.')
@@ -130,7 +139,7 @@ def taskRestoreConfig(configBundle):
 	shutil.move(src, dest)
 
 def taskRestoreEyecandy():
-    #subprocess.check_call('su chm -c "gsettings set org.gnome.desktop.interface icon-theme Faenza"')
+    subprocess.check_call('su chm -c "gsettings set org.gnome.desktop.interface icon-theme Faenza"')
 
 def taskTrackpointSpeed():
     logging.info('  taskTrackpointSpeed: Speeding up trackpoint.')
@@ -142,26 +151,28 @@ def taskTrackpointSpeed():
     subprocess.check_call('/sbin/udevadm trigger', shell=True)
 
 def main():
-    taskInstallPackages(packagesSystem)
+    #taskInstallPackages(packagesSystem)
     #taskInstallPackages(packagesTools)
-    taskInstallPackages(packagesOffice)
+    #taskInstallPackages(packagesOffice)
     #taskInstallPackages(packagesDesign)
     #taskInstallPackages(packagesDevGeneric)
     #taskInstallPackages(packagesDevPython)
     #taskInstallPackages(packagesDevJava)
+    #taskInstallPackages(packagesDevWeb)
+    #taskInstallExternalPackages('sh', packagesDevNetbeans)
     #taskInstallPackages(packagesCompat)
     #taskInstallPackages(packagesEmacs)
     #taskRestoreConfig(configEmacs)
     #taskUpdateCodecs()
     #taskTrackpointSpeed()
     #taskAddRepos()
-    taskInstallPackages(packagesMedia)
-    taskInstallPackages(packagesMath)
-    taskInstallPackages(packagesTex)
-    taskInstallPackages(packagesFonts)
-    taskInstallPackages(packagesEyecandy)
-    taskRestoreEyecandy()
-    taskInstallExternalPackages('rpm', packagesVirtualBox):
+    #taskInstallPackages(packagesMedia)
+    #taskInstallPackages(packagesMath)
+    #taskInstallPackages(packagesTex)
+    #taskInstallPackages(packagesFonts)
+    #taskInstallPackages(packagesEyecandy)
+    #taskRestoreEyecandy()
+    taskInstallExternalPackages('rpm', packagesVirtualBox)
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
