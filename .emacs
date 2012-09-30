@@ -203,6 +203,7 @@
 (setq auto-mode-alist
   (cons '("\\.mdn" . markdown-mode) auto-mode-alist))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Muse
 ;; simple markup authoring system
@@ -794,6 +795,11 @@
 (add-hook 'lua-mode-hook 'turn-on-font-lock)
 (add-hook 'lua-mode-hook 'hs-minor-mode)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Mustache
+(add-to-list 'load-path "~/.emacs.d/lisp/mustache-mode.el")
+(require 'mustache-mode)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  BACKMATTER
@@ -810,7 +816,7 @@
 (load custom-file)  ; overriding .emacs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; start in org scratch buffer
-(switch-to-buffer (get-buffer-create (generate-new-buffer-name "*org-scratch*")))
-;;(insert "Scratch buffer with org-mode.\n\n")
-(org-mode)
+;; start in rst scratch buffer
+(setq initial-scratch-message "")
+(setq initial-major-mode 'rst-mode)
+
