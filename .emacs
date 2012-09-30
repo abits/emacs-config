@@ -6,11 +6,10 @@
   (normal-top-level-add-subdirs-to-load-path))
 
 ;; general packages
+;; abbrev stuff
 (require 'cl)
-(require 'thingatpt)
-(require 'ffap)
-(require 'uniquify)
-(require 'ansi-color)
+;; use unique buffer names
+(require 'uniquify) 
 ;; recentf
 (require 'recentf)
 (recentf-mode 1)
@@ -36,16 +35,14 @@
         ido-use-filename-at-point 'guess
         ido-max-prospects 10))
 
-;;(server-start)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
-;(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (if window-system
                                    (scroll-bar-mode -1)))
-;;(unless window-system
-(toggle-menu-bar-mode-from-frame)
-;;)
+(unless window-system
+  (toggle-menu-bar-mode-from-frame))
 
 (defun toggle-vert-max ()
   (interactive)
@@ -95,7 +92,6 @@
 (set-keyboard-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 (ansi-color-for-comint-mode-on)
-
 
 ;; Transparently open compressed files
 (auto-compression-mode t)
@@ -166,12 +162,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; VC
 (require 'magit)
-(setq user-mail-address "accidentalbits@googlemail.com")
+(setq user-mail-address "chris@codeways.org")
 (setq user-full-name "Chris Martel")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; YaSnippet
 (require 'yasnippet-bundle)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Text and related modes
@@ -190,29 +187,18 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; t2t mode
-(setq auto-mode-alist 
-      (append (list '("\\.t2t$" . t2t-mode))
-              (if (boundp 'auto-mode-alist) auto-mode-alist)))
-(autoload 't2t-mode "txt2tags-mode" "Txt2tags Mode" t)
+;; restructured text
+(add-to-list 'auto-mode-alist '("\\.rst$" . flyspell-mode))
+(add-to-list 'auto-mode-alist '("\\.rst$" . footnote-mode))
+(add-to-list 'auto-mode-alist '("\\.rst$" . orgstruct-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; markdown mode
 (autoload 'markdown-mode "markdown-mode.el"
   "Major mode for editing Markdown files" t)
 (setq auto-mode-alist
-  (cons '("\\.mdn" . markdown-mode) auto-mode-alist))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Muse
-;; simple markup authoring system
-(require 'muse-mode)     ; lade den authoring mode
-(require 'muse-html)     ; lade die relevanten Stile
-(require 'muse-latex)
-(require 'muse-texinfo)
-(require 'muse-docbook)
-;;(require 'muse-project)  ; publish files in projects
+  (cons '("\\.md" . markdown-mode) auto-mode-alist))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -247,10 +233,7 @@
 (setq load-path (cons "~/.emacs.d/lisp/org/contrib/lisp" load-path))
 (require 'org-install)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(setq org-agenda-files '("~/Org/mygtd.org"
-                         "~/Org/jobs.org"
-                         "~/Org/studium.org"
-                         "~/Org/coding-projekte.org"))
+(setq org-agenda-files '("~/Org/mygtd.org"))
 (setq org-agenda-include-diary t)
 (setq org-default-notes-file '("~/Org/notes.org"))
 (setq org-log-done 'time)
@@ -272,32 +255,6 @@
 ;; Set to the location of your Org files on your local system
 (setq org-directory "~/Org")
 ;; Set to the name of the file where new notes will be stored
-(setq org-mobile-inbox-for-pull "~/Org/flagged.org")
-;; Set to <your Dropbox root directory>/MobileOrg.
-(setq org-mobile-directory "~/Dropbox/MobileOrg")
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; BBDB
-(require 'bbdb)
-(bbdb-initialize)
-;; bbdb wanderlust integration
-;;(require 'bbdb-wl)
-;;(bbdb-wl-setup)
-;; enable pop-ups
-;;(setq bbdb-use-pop-up t)
-;; auto collection
-;(setq bbdb/mail-auto-create-p t)
-;; exceptional folders against auto collection
-;;(setq bbdb-wl-ignore-folder-regexp "^@")
-;;(setq bbdb-wl-ignore-folder-regexp "^-")
-;;(setq signature-use-bbdb t)
-(setq bbdb-north-american-phone-numbers-p nil)
-;; shows the name of bbdb in the summary :-)
-;;(setq wl-summary-from-function 'bbdb-wl-from-func)
-;; automatically add mailing list fields
-;;(add-hook 'bbdb-notice-hook 'bbdb-auto-notes-hook)
-;;(setq bbdb-auto-notes-alist '(("X-ML-Name" (".*$" ML 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Calendar
@@ -338,67 +295,6 @@
 (add-hook 'diary-display-hook 'fancy-diary-display)
 ;;(diary) ; show diary at startup
 
-;; give me g-client for google support
-; doesn't work yet, lib is installed, but authentication fails with
-; type error (stringp)
-;(load-library "g")
-;(setq g-user-email "christoph.martel@gmail.com")
-;(gcal-emacs-calendar-setup)
-;(setq g-html-handler 'w3m-buffer)
-;(setq g-html-handler 'w3m-browse-url)
-;(setq g-html-handler 'browse-url)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  MULTIMEDIA
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; emms-stuff
-;; simple setup for emms
-(require 'emms-setup)
-(require 'emms-info-libtag)
-;(require 'emms-player-mpg321-remote)
-;(emms-all)
-(emms-devel)
-(emms-default-players)
-(push 'emms-player-mpg321 emms-player-list)
-(push 'emms-player-mplayer emms-player-list)
-(push 'emms-player-mplayer-playlist emms-player-list)
-; lastfm interface
-(setq emms-lastfm-username "uname"
-      emms-lastfm-password "secret")
-(setq emms-stream-bookmarks-file "~/.emacs.d/emms-streams")
-; mpd interface
-(require 'emms-player-mpd)
-(setq emms-player-mpd-server-name "localhost")
-(setq emms-player-mpd-server-port "6600")
-(add-to-list 'emms-info-functions 'emms-info-mpd)
-(add-to-list 'emms-player-list 'emms-player-mpd)
-(setq emms-player-mpd-music-directory "/home/chm/Musik")
-(setq emms-source-file-default-directory "/home/chm/Musik")
-;(setq emms-volume-amixer-control "Front")
-;;;;;
-; dired play/add media files
-(defun dired-emms-add-file ()
-  "Adds the current file or directory to the EMMS playing list."
-  (interactive)
-  (let ((fname (dired-get-filename)))
-    (if (string= (downcase (substring fname -4 nil)) ".m3u")
-	(emms-add-m3u-playlist fname)
-      (emms-add-file fname))))
-
-(defun dired-emms-play-file ()
-  "Plays the current file or directory."
-  (interactive)
-  (let ((fname (dired-get-filename)))
-    (if (string= (downcase (substring fname -4 nil)) ".m3u")
-	(emms-play-m3u-playlist fname)
-      (emms-play-file fname))))
-(define-key dired-mode-map "w" 'dired-emms-add-file)
-(define-key dired-mode-map "r" 'dired-emms-play-file)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -408,23 +304,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; WWW / Browser
-;; w3m
-(if (= emacs-major-version 23)
-    (progn
-      (add-to-list 'load-path "/usr/share/emacs/site-lisp/w3m")
-      (require 'w3m-load))
-(require 'w3m))
+(require 'w3m-load)
+(require 'w3m)
 (setq mm-text-html-renderer 'w3m)
 (require 'mime-w3m)  
 (setq browse-url-browser-function 'w3m-browse-url)
 (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
 ;; optional keyboard short-cut
 (global-set-key "\C-xm" 'browse-url-at-point)
-;; newsticker
 (autoload 'w3m-region "w3m"
   "Render region in current buffer and replace with result." t)
 (autoload 'w3m-toggle-inline-image "w3m"
   "Toggle the visibility of an image under point." t)
+(setq w3m-use-cookies t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; E-mail / Mutt integration
@@ -436,167 +328,13 @@
 (add-hook 'mail-mode-hook 'orgstruct-mode)
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; E-mail / Wanderlust
-;; autoload configuration
-;; (Not required if you have installed Wanderlust as XEmacs package)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; general stuff
-;;
-;; Directory where icons are placed.
-;; Default: the peculiar value to the running version of Emacs.
-;; (Not required if the default value points properly)
-;; (setq wl-icon-directory "~/work/wl/etc")
-;;(autoload 'wl "wl" "Wanderlust" t)
-;;(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
-;;(autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
-
-
-;;enable wanderlust as default mail composer
-;; (autoload 'wl-user-agent-compose "wl-draft" nil t)
-;; (if (boundp 'mail-user-agent)
-;;    (setq mail-user-agent 'wl-user-agent))
-;; (if (fboundp 'define-mail-user-agent)
-;;    (define-mail-user-agent
-;;      'wl-user-agent
-;;      'wl-user-agent-compose
-;;      'wl-draft-send
-;;      'wl-draft-kill
-;;      'mail-send-hook))
-
-;; (setq wl-mime-charset 'utf-8)
-;; (set-language-environment 'utf-8) ; Default would be utf8
-;; (setq default-mime-charset-for-write 'utf-8)
-;; (setq default-mime-charset 'utf-8)
-;; (setq wl-summary-width 'nil)
-;; (setq wl-summary-weekday-name-lang 'de)
-;; (setq elmo-folder-update-confirm 'nil)
-;; ;; default folder setup
-;; (setq wl-default-spec "%")
-;; (setq wl-default-folder "Gmail")
-;; (setq wl-draft-folder ".~/Dokumente/Entwürfe")
-;; (setq wl-trash-folder "%[Gmail]/Papierkorb")
-;; (setq wl-folder-check-async t) 
-;; (setq elmo-passwd-alist-file-name "/home/chm/.elmo/passwd")
-
-;; ;; no verbose user agent field
-;; (setq wl-generate-mailer-string-function
-;;       'wl-generate-user-agent-string-1)
-;; ;; Set mail-icon to be shown universally in the modeline.
-;; (setq global-mode-string
-;;       (cons
-;;        '(wl-modeline-biff-status
-;;          wl-modeline-biff-state-on
-;;          wl-modeline-biff-state-off)
-;;        global-mode-string))
-;; ;; Biff
-;; (setq wl-biff-check-folder-list
-;;         '("%inbox:christoph.martel@gmail.com/clear@imap.googlemail.com:993!"
-;; ;        "-feu.mathematik.kurs.1141.diskussion:q8222665@news.fernuni-hagen.de"
-;; ;        "-feu.mathematik.kurs.1142:q8222665@news.fernuni-hagen.de"
-;; ;        "-feu.informatik.kurs.1613:q8222665@news.fernuni-hagen.de"
-;; ;        "-comp.lang.python"
-;; ;        "-comp.lang.javascript"
-;; ;        "-comp.os.linux.advocacy"
-;; ;        "-comp.os.linux.setup"
-;;         )
-;;       wl-biff-check-interval 180
-;;       wl-biff-use-idle-timer t)
-
-;; (defun my-wl-update-current-summaries ()
-;;   (let ((buffers (wl-collect-summary)))
-;;     (while buffers
-;;       (with-current-buffer (car buffers)
-;;         (save-excursion
-;;           (wl-summary-sync-update)))
-;;       (setq buffers (cdr buffers)))))
-
-;; (add-hook
-;;  'wl-biff-notify-hook
-;;  '(lambda ()
-;;     (my-wl-update-current-summaries)
-;;     ))
-
-
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;; NNTP server for news posting. Default: `nil'
-;; ;;
-;; (setq wl-nntp-posting-server "news.individual.de")
-;; (setq elmo-nntp-default-server "news.individual.de")
-;; (setq elmo-nntp-default-user "christophmartel")
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;; IMAP
-;; (setq elmo-imap4-default-server "imap.gmail.com")
-;; (setq elmo-imap4-default-user "christoph.martel@gmail.com") 
-;; (setq elmo-imap4-default-authenticate-type 'clear) 
-;; (setq elmo-imap4-default-port '993)
-;; (setq elmo-imap4-default-stream-type 'ssl)
-;; (setq elmo-imap4-use-modified-utf7 t) 
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;; SMTP server for mail posting. Default: `nil'
-;; ;;
-;; (setq wl-smtp-connection-type 'starttls)
-;; (setq wl-smtp-posting-port 587)
-;; (setq wl-smtp-authenticate-type "plain")
-;; (setq wl-smtp-posting-user "christoph.martel@gmail.com")
-;; (setq wl-smtp-posting-server "smtp.gmail.com")
-;; (setq wl-local-domain "gmail.com")
-;; (setq wl-from "christoph.martel@gmail.com")
-;; (setq wl-message-id-domain "gmail.com")
-;; (setq wl-message-id-use-wl-from t)
-;; (setq wl-interactive-send t)
-
-;;GnuPG support with mailcrypt and wanderlust
-;; (load-library "mailcrypt")
-;; (mc-setversion "gpg")
-;; (add-hook 'wl-summary-mode-hook 'mc-install-read-mode)
-;; (add-hook 'wl-mail-setup-hook 'mc-install-write-mode)
-
-;; (defun mc-wl-verify-signature ()
-;;  (interactive)
-;;  (save-window-excursion
-;;    (wl-summary-jump-to-current-message)
-;;    (mc-verify)))
-
-;; (defun mc-wl-decrypt-message ()
-;;  (interactive)
-;;  (save-window-excursion
-;;    (wl-summary-jump-to-current-message)
-;;    (let ((inhibit-read-only t))
-;;      (mc-decrypt))))
-
-;; (eval-after-load "mailcrypt"
-;;   '(setq mc-modes-alist
-;;        (append
-;;         (quote
-;;          ((wl-draft-mode (encrypt . mc-encrypt-message)
-;;             (sign . mc-sign-message))
-;;           (wl-summary-mode (decrypt . mc-wl-decrypt-message)
-;;             (verify . mc-wl-verify-signature))))
-;;         mc-modes-alist)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Identi.ca
-(require 'identica-mode)
-(when (require 'netrc nil t)
-  (autoload 'identica-mode "identica-mode" nil t)
-  (let ((identica (netrc-machine (netrc-parse "~/.netrc") "identi.ca" t))) ; remove this `t' if you didn't specify a port
-    (setq identica-password (netrc-get identica "password") ; if it's last, avoid doing C-M-x in public spaces at least ;-)
-          identica-username (netrc-get identica "login"))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Blogging / Authoring
-(require 'weblogger)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  CODING
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'flymake)
+
 (defun untabify-buffer ()
   (interactive)
   (untabify (point-min) (point-max)))
@@ -665,7 +403,6 @@
   "Enable things that are convenient across all coding buffers."
   (run-hooks 'coding-hook))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; setup chm viewer
 (require 'chm-view)
@@ -682,86 +419,26 @@
 (setq auto-mode-alist
     (append '(
         ("configure.in" . m4-mode)
-	("\\.m4\\’" . m4-mode)
-	("\\.am\\’" . makefile-mode))
-    auto-mode-alist))
+        ("\\.m4\\’" . m4-mode)
+        ("\\.am\\’" . makefile-mode))
+            auto-mode-alist))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; devhelp integration
-;; by Richard Hult <richard@imendio.com>
-(defun devhelp-word-at-point ()
-  "runs devhelp"
-  (interactive)
-  (start-process-shell-command "devhelp" nil "devhelp" "-s" (current-word))
-  )
-;; ; Example: bind F7 to start devhelp and search for the word at the point.
-(global-set-key [f7] 'devhelp-word-at-point)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;; HTML Helper mode
-;; (setq load-path (cons "path_to_html-helper-mode_directory" load-path))
-;; (autoload 'html-helper-mode "html-helper-mode" "Yay HTML" t)
-;; (add-hook 'html-helper-mode-hook 'run-coding-hook)
-;; (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
-;; ;Recognize server-parsed HTML files
-;; (setq auto-mode-alist (cons '("\\.shtml$" . html-helper-mode) auto-mode-alist))
-;; ;Insert new document HTML template
-;; (setq html-helper-build-new-buffer t)
-;; ;Insert address
-;; (setq html-helper-address-string 
-;;	"<a href=\"http://www.cmartel.de\">Christoph Martel ;;&lt;c.martel@gmx.net&gt;</a>")
-;; ;Enable time stamp
-;; (setq html-helper-do-write-file-hooks t)
-;; ;Enable hyperlink prompt
-;; (setq tempo-interactive t)
-;; ;Enable PHP support
-;; (require 'php-mode)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; XML / HTML
-(add-to-list 'auto-mode-alist
-             (cons (concat "\\." (regexp-opt '("xml" "xsd" "sch" "rng" "xslt" "svg" "rss") t) "\\'")
-                   'nxml-mode))
-(unify-8859-on-decoding-mode)
-(setq magic-mode-alist
-	  (cons '("<＼＼?xml " . nxml-mode)
-            magic-mode-alist))
-(fset 'xml-mode 'nxml-mode)
-;(fset 'html-mode 'nxml-mode)
-;; use nxhtml for web dev
-;;(load "~/.emacs.d/lisp/nxhtml/autostart.el")
-;; Conditional load of nxhtml because its really heavy, but really good.
-(setq *nxhtml-autostart-file* (expand-file-name "~/.emacs.d/lisp/nxhtml/autostart.el"))
-(defun load-nxhtml-if-required ()
-  (if (and (string-match ".+\\.\\(php\\|html\\)$" (buffer-file-name))
-           (not (featurep 'nxhtml-autostart)))
-      (progn 
-        (load *nxhtml-autostart-file*)
-        (nxhtml-mumamo-mode)))) ;; mumamo loads nxhtml-mode et al
-(add-hook 'find-file-hook 'load-nxhtml-if-required)
-
-
+;; JS Mode
+(add-hook 'js-mode-hook 'run-coding-hook)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Javascript mode
-(autoload 'espresso-mode "espresso" "Start espresso-mode" t)
-(add-to-list 'auto-mode-alist '("\\.js$" . espresso-mode))
-(add-to-list 'auto-mode-alist '("\\.json$" . espresso-mode))
-(add-hook 'espresso-mode-hook 'moz-minor-mode)
-(add-hook 'espresso-mode-hook 'esk-paredit-nonlisp)
-(add-hook 'espresso-mode-hook 'run-coding-hook)
-(setq espresso-indent-level 2)
+;; Python Mode
+(add-hook 'python-mode-hook 'run-coding-hook)
 
-(eval-after-load 'espresso
-  '(progn (define-key espresso-mode-map "{" 'paredit-open-curly)
-          (define-key espresso-mode-map "}" 'paredit-close-curly-and-newline)
-          ;; fixes problem with pretty function font-lock
-          (define-key espresso-mode-map (kbd ",") 'self-insert-command)
-          (font-lock-add-keywords
-           'espresso-mode `(("\\(function *\\)("
-                             (0 (progn (compose-region (match-beginning 1)
-                                                       (match-end 1) "ƒ")
-                                       nil)))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; PHP Mode
+(require 'php-mode)
+(add-hook 'php-mode-hook (lambda() (flymake-mode 1)))
+(define-key php-mode-map '[M-S-up] 'flymake-goto-prev-error)
+(define-key php-mode-map '[M-S-down] 'flymake-goto-next-error)
+(setq auto-mode-alist (append '(("\\.php" . php-mode)) auto-mode-alist))
+(add-hook 'php-mode-hook 'run-coding-hook)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Pascal mode
@@ -774,6 +451,8 @@
 ;; set scheme backend
 (setq scheme-program-name "mit-schem")
 (add-hook 'scheme-mode-hook 'run-coding-hook)
+(add-hook 'lisp-mode-hook 'run-coding-hook)
+(add-hook 'emacs-lisp-mode-hook 'run-coding-hook)
 
 ;; You want quack. Really.
 (require 'quack)
@@ -787,6 +466,8 @@
 ;; C/C++ Stuff
 (setq load-path (cons "~/.emacs.d/lisp/cc-mode" load-path))
 (require 'cc-mode)
+(add-hook 'cc-mode-hook 'run-coding-hook)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Lua stuff
@@ -816,7 +497,7 @@
 (load custom-file)  ; overriding .emacs
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; start in rst scratch buffer
-(setq initial-scratch-message "")
-(setq initial-major-mode 'rst-mode)
+;; start in org scratch buffer
+(setq initial-scratch-message (insert-date))
+(setq initial-major-mode 'org-mode)
 
