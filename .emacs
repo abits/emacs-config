@@ -16,11 +16,10 @@
 (setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 ;; color theme
-(require 'color-theme)
-(color-theme-initialize)
-;;(unless window-system
-;;  (color-theme-billw))
-(color-theme-billw)
+;;(require 'color-theme)
+;;(color-theme-initialize)
+;;(color-theme-billw)
+(load-file "~/.emacs.d/lisp/themes/tomorrow-night-theme.el")
 ;; insert file path
 (load-library "insert-path")
 ;; give me ido
@@ -206,6 +205,7 @@
 ; yes we want auto parse for style hooks
 (setq TeX-parse-self t)
 (setq TeX-auto-save t)
+(setq TeX-show-compilation nil)
 ; yes, we want RefTex with all our Latex files
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
 (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
@@ -229,6 +229,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Orgmode
+
+
 (setq load-path (cons "~/.emacs.d/lisp/org/lisp" load-path))
 (setq load-path (cons "~/.emacs.d/lisp/org/contrib/lisp" load-path))
 (require 'org-install)
